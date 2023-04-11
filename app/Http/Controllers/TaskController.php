@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Repositories\Post\PostRepository;
 use App\Models\Task;
 use App\Models\Cate;
+use App\Repositories\Interfaces\TaskRepositoryInterface;
+use App\Repositories\TaskRepository;
 class TaskController extends Controller
 {
     /**
@@ -13,13 +15,17 @@ class TaskController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    private $TaskRepository;
 
-    protected $postRepository;
 
+    public function __construct(TaskRepositoryInterface $TaskRepository)
+    {
+        $this->TaskRepository = $TaskRepository;
+    }
     public function index()
     {
-        $task  = Task::all();
         $cate = Cate::all();
+        $task =  $this->TaskRepository->index();
         return view('task.task.index', compact('task','cate'));
     }
 
@@ -42,28 +48,14 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+         $data = $request->validate([
             'name' => ['required', 'max:255'],
             'des' => ['required']
 
         ]);
       
-        $task  = new  Task;
-        $task->name = $request['name'];
-        $task->id_cate = $request->id_cate;
-        $task->des = $request['des'];
-        if($request->has('img1'))
-        {
-            $img1 = $request->img1;
-            $extension = $request->img1->extension();
-            $img1Name = time().'-1.'.$extension;
-            $img1->move(public_path('imgUploads'), $img1Name);
-            $task->img1 = $img1Name;
-        }
-        else{
-            $task->img1= $request->img11;
-        }
-        $task->save();
+        $task =  $this->TaskRepository->store($data);
+        $dd($task);
         return redirect()->back()->with('massage', 'success');
     }
 
