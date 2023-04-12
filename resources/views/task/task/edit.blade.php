@@ -39,8 +39,7 @@
                             <br>
                             <div class="basic-form">
 
-                                <form action="{{ route('Task.update',$task->id) }}" method="POST"
-                                    enctype="multipart/form-data">
+                                <form action="{{ route('Task.update',$task->id) }}" method="POST" enctype="multipart/form-data">
                                     @csrf
                                     @method('PUT')
                                     <div class="form-group">

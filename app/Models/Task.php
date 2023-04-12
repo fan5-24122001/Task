@@ -16,5 +16,10 @@ class Task extends Model
         'id_cate',
         'des',
         'img1'
+        
     ];
+    public function Cate()
+    {
+        return $this->hasMany(Cate::class);
+    }
 }

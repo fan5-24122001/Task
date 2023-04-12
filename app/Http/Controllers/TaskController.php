@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Repositories\Post\PostRepository;
 use App\Models\Task;
 use App\Models\Cate;
+use App\Repositories\Interfaces\TaskRepositoryInterface;
+use App\Repositories\TaskRepository;
 class TaskController extends Controller
 {
     /**
@@ -13,14 +15,18 @@ class TaskController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    private $TaskRepository;
 
-    protected $postRepository;
 
+    public function __construct(TaskRepositoryInterface $TaskRepository)
+    {
+        $this->TaskRepository = $TaskRepository;
+    }
     public function index()
     {
-        $task  = Task::all();
-        $cate = Cate::all();
-        return view('task.task.index', compact('task','cate'));
+        $cates = Cate::all();
+        $task =  $this->TaskRepository->index();
+        return view('task.task.index', compact('task','cates'));
     }
 
     /**
@@ -42,28 +48,10 @@ class TaskController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => ['required', 'max:255'],
-            'des' => ['required']
-
-        ]);
-      
-        $task  = new  Task;
-        $task->name = $request['name'];
-        $task->id_cate = $request->id_cate;
-        $task->des = $request['des'];
-        if($request->has('img1'))
-        {
-            $img1 = $request->img1;
-            $extension = $request->img1->extension();
-            $img1Name = time().'-1.'.$extension;
-            $img1->move(public_path('imgUploads'), $img1Name);
-            $task->img1 = $img1Name;
-        }
-        else{
-            $task->img1= $request->img11;
-        }
-        $task->save();
+       
+       
+        $task =  $this->TaskRepository->store($request);
+        
         return redirect()->back()->with('massage', 'success');
     }
 
@@ -76,7 +64,7 @@ class TaskController extends Controller
     public function show($id)
     {
         $cate = Cate::all();
-        $task = Task::find($id);
+        $task =  $this->TaskRepository->show($id);
         return view('task.task.show', compact('task','cate'));
     }
 
@@ -88,7 +76,7 @@ class TaskController extends Controller
      */
     public function edit($id)
     {
-        $task = Task::find($id);
+        $task =  $this->TaskRepository->destroy($id);
         $cate = Cate::all();
         return view('task.task.edit', compact('task','cate'));
     }
@@ -108,24 +96,7 @@ class TaskController extends Controller
             'des' => ['required']
 
         ]);
-
-        $task  =  Task::find($id);
-        $task->name = $request['name'];
-        $task->des = $request['des'];
-        $task->id_cate = $request->id_cate;
-        if($request->has('img1'))
-        {
-            $img1 = $request->img1;
-            $extension = $request->img1->extension();
-            $img1Name = time().'-1.'.$extension;
-            $img1->move(public_path('imgUploads'), $img1Name);
-            $task->img1 = $img1Name;
-        }
-        else{
-            $task->img1= $request->img11;
-        }
-        $task->save();
-        $task ->save();
+        $task =  $this->TaskRepository->update($request,$id);
         return redirect()->back()->with('massage', 'success');
     }
 
@@ -137,7 +108,7 @@ class TaskController extends Controller
      */
     public function destroy($id)
     {
-        Task::find($id)->delete();
+        $task =  $this->TaskRepository->destroy($id);
         return redirect()->back()->with('status', 'Delete Success');
     }
 }
