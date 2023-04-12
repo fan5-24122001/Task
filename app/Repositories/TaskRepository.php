@@ -3,8 +3,12 @@
 namespace App\Repositories;
 
 use App\Repositories\Interfaces\TaskRepositoryInterface;
+use Illuminate\Http\Request;
+use App\Repositories\Post\PostRepository;
 use App\Models\Task;
 use App\Models\Cate;
+
+use App\Repositories\TaskRepository;
 class TaskRepository implements TaskRepositoryInterface
 {
 
@@ -14,30 +18,31 @@ class TaskRepository implements TaskRepositoryInterface
     }
     public function create()
     {
-        $cate = Cate::all();
+       
         return Task::latest()->paginate(10);
     }
 
-    public function store($data)
+    public function store($request)
     {
-       
-        $task  = new  Task;
-        
-        $task->name = $data['name'];
-        $task->id_cate = $data->id_cate;
-        $task->des = $data['des'];
-        if($data->has('img1'))
+        if($request->has('img1'))
         {
-            $img1 = $data->img1;
-            $extension = $data->img1->extension();
+            $img1 = $request->img1;
+            $extension = $request->img1->extension();
             $img1Name = time().'-1.'.$extension;
             $img1->move(public_path('imgUploads'), $img1Name);
-            $task->img1 = $img1Name;
+            $request->img1 = $img1Name;
         }
-        else{
-            $task->img1= $request->img11;
+        if(Task::create([
+            'name'=>$request->name,
+            'id_cate'=>$request->id_cate,
+            'des'=>$request->des,
+            'img1'=>$request->img1,
+          
+        ]))
+        {
+            return redirect()->back()->with('success','successfully Add.');
         }
-        $task->save();
+        
     }
 
     public function show($id)
@@ -50,13 +55,25 @@ class TaskRepository implements TaskRepositoryInterface
         return Task::find($id);
     }
 
-    public function update($data, $id)
+    public function update( $request, $id)
     {   
        
         $task = Task::where('id', $id)->first();
-        $task->name = $data['name'];
-        $task->des = $data['des'];
-        $task->img1 = $data['img1'];
+        if($request->has('img1'))
+        {
+            $img1 = $request->img1;
+            $extension = $request->img1->extension();
+            $img1Name = time().'-1.'.$extension;
+            $img1->move(public_path('imgUploads'), $img1Name);
+            $request->img1 = $img1Name;
+        }else{
+            $request->img1= $request->img11;
+        }
+        $task->name = $request->name;
+        $task->des = $request->des;
+        $task->id_cate = $request->id_cate;
+        $task->img1 = $request->img1;
+      
         $task->save();
     }
 

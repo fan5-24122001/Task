@@ -12,7 +12,10 @@ class Cate extends Model
     protected $table = 'cate';
     protected $primaryKey = 'id';
     protected $fillable = [
-        'name'
-       
+        'name',
     ];
+    public function Task()
+{
+    return $this->hasMany(Task::class);
+}
 }

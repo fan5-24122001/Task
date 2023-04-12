@@ -34,18 +34,27 @@
                                     <tr>
                                         <th>Stt</th>
                                         <th>Tên</th>
+                                        <th>Cate</th>
                                         <th>Trạng Thái</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($task as $key => $cate)
+                                  
                                     <tr>
 
                                         <td>{{$key}}</td>
                                         <td>{{$cate ->name}}</td>
                                         <td>{{$cate ->des}}</td>
-                                        <td>  <img style="witdh:100px;height:100px" src="{{ asset("/imgUploads/$cate->img1")}}"></td>
-                                        <td>
+                                        <td> 
+                                           @foreach ($cates as $ca)
+                                           @if( $ca->id == $cate->id_cate ? 'selected' : '' )
+                                            {{ $ca->name }} 
+                                           @endif
+                                           @endforeach
+                                           <td>
+                                        
+                                       
                                             <div class="d-flex">
                                                 <a href="{{route('Task.show',$cate->id)}}">
 
@@ -87,7 +96,7 @@
                                             </div>
 
                                         </td>
-
+                                       
                                         @endforeach
                                     </tr>
 

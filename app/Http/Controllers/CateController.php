@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Cate;
+use App\Repositories\Interfaces\CateRepositoryInterface;
+use App\Repositories\CateRepository;
 class CateController extends Controller
 {
     /**
@@ -11,9 +13,17 @@ class CateController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+     private $CateRepository;
+
+
+     public function __construct(CateRepositoryInterface $CateRepository)
+     {
+         $this->CateRepository = $CateRepository;
+     }
     public function index()
     {
-        $cate  = Cate::all();
+        $cate =  $this->CateRepository->index();
         return view('cate.index', compact('cate'));
     }
 
@@ -23,7 +33,7 @@ class CateController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function create()
-    {
+    { 
         return view('cate.add');
     }
 
@@ -35,9 +45,7 @@ class CateController extends Controller
      */
     public function store(Request $request)
     {
-        $cate  = new  Cate;
-        $cate->name = $request['name'];
-        $cate-> save();
+        $cate = $this->CateRepository->store($request);
         return redirect()->back()->with('massage', 'success');
     }
 
@@ -49,7 +57,8 @@ class CateController extends Controller
      */
     public function show($id)
     {
-        //
+        $cate =  $this->CateRepository->show($id);
+        return view('cate.show', compact('cate'));
     }
 
     /**
@@ -60,7 +69,9 @@ class CateController extends Controller
      */
     public function edit($id)
     {
-        //
+        $cate =  $this->CateRepository->edit($id);
+        return view('cate.edit', compact('cate'));
+        
     }
 
     /**
@@ -72,7 +83,8 @@ class CateController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $cate =  $this->CateRepository->update($request,$id);
+        return redirect()->back()->with('massage', 'success');
     }
 
     /**
@@ -83,6 +95,7 @@ class CateController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $cate =  $this->CateRepository->destroy($id);
+        return redirect()->back()->with('status', 'Delete Success');
     }
 }
